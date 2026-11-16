@@ -1,0 +1,12 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+const revision = '7455efae41b330c265e7cd4b78dfa848e7ce5ebd';
+const root = `https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/${revision}/`;
+const get = async p => { const r = await fetch(root+p); if(!r.ok) throw Error(`${p}: ${r.status}`); return r.text(); };
+const source = JSON.parse(await get('data/exercises.json'));
+const exercises = source.map(e => ({id:String(e.id),name:e.name,category:e.category,bodyPart:e.body_part,equipment:e.equipment,target:e.target,muscles:[...new Set([e.target,e.muscle_group,...e.secondary_muscles])],instructions:e.instruction_steps.en,poster:e.image,gif:e.gif_url,attribution:e.attribution}));
+if(exercises.length !== 1324 || new Set(exercises.map(e=>e.id)).size !== exercises.length) throw Error('Unexpected upstream catalog');
+await mkdir('public/dataset', {recursive:true});
+await writeFile('public/catalog.json', JSON.stringify({revision,source:'https://github.com/hasaneyldrm/exercises-dataset',exercises}));
+for(const name of ['LICENSE','NOTICE.md']) await writeFile('public/dataset/'+name, await get(name));
+await writeFile('public/dataset/provenance.json',JSON.stringify({source:root,revision,count:exercises.length,fields:'English names/instruction steps, original IDs, equipment, muscles, media paths, attribution',media:'© Gym visual; separate media terms in NOTICE.md. User confirmed GIF permission. No media bundled; fetched deliberately/on demand.'},null,2));
+console.log(`Prepared ${exercises.length} English exercises at ${revision}`);

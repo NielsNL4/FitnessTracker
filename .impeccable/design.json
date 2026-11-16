@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T13:00:00Z",
+  "title": "Design System: Liquid Glass Workout Tracker",
+  "extensions": {
+    "colorMeta": {
+      "accent": {"role":"primary","displayName":"Icy Blue","tonalRamp":["#0c2435","#113b55","#185777","#24789d","#499fc2","#8ed5ff","#c4e7ff","#edf8ff"]},
+      "canvas": {"role":"neutral","displayName":"Deep Navy Canvas","tonalRamp":["#080e1b","#0d1320","#161b29","#1a1f2d","#242a38","#2f3543","#bdc8d1","#dde2f5"]}
+    },
+    "typographyMeta": {
+      "headline":{"displayName":"Focused headline","purpose":"Greeting and current exercise hierarchy; source-derived per-screen density."},
+      "body":{"displayName":"Operational body","purpose":"Dutch controls and explanations, original English dataset instructions."},
+      "micro":{"displayName":"Dense source labels","purpose":"Pinned uppercase region labels and table/navigation metadata; not promotional eyebrows."},
+      "metric":{"displayName":"Logged metrics","purpose":"Tabular actual values, never invented records or physiological certainty."}
+    },
+    "shadows": [
+      {"name":"panel","value":"0 8px 28px rgba(0,0,0,.25)","purpose":"Structural depth beneath dark panels."},
+      {"name":"floating-navigation","value":"0 10px 30px rgba(0,0,0,.5)","purpose":"Separate the fixed capsule from scrollable content."},
+      {"name":"action","value":"0 5px 20px rgba(0,111,170,.22)","purpose":"Concentrated cyan action emphasis."}
+    ],
+    "motion": [
+      {"name":"control","value":"background .18s ease, border-color .18s ease","purpose":"Small operational state changes; reduced-motion disables transitions."},
+      {"name":"switch","value":"transform .2s ease","purpose":"The settings switch thumb, not an additional entrance animation."}
+    ],
+    "breakpoints": [
+      {"name":"compact","value":"359px"},
+      {"name":"centered-desktop","value":"760px"}
+    ]
+  },
+  "components": [
+    {"name":"Primary action","kind":"button","refersTo":"button-primary","description":"Cyan capsule for the next training action.","html":"<button class=\"ds-primary\">Hervat training</button>","css":".ds-primary{font:600 16px 'Space Grotesk',sans-serif;color:#00354a;background:linear-gradient(100deg,var(--action,#38bdf8),var(--accent,#8ed5ff));border:1px solid #88dbff;border-radius:999px;min-height:52px;padding:12px 28px;box-shadow:0 5px 20px rgba(0,111,170,.22);cursor:pointer}.ds-primary:hover{background:#a5e0ff}.ds-primary:focus-visible{outline:2px solid #8ed5ff;outline-offset:4px}.ds-primary:active{background:#88cbed}"},
+    {"name":"Secondary action","kind":"button","description":"Quiet dark glass control with outlined cyan treatment.","html":"<button class=\"ds-secondary\">Bekijk schema</button>","css":".ds-secondary{font:500 14px 'Space Grotesk',sans-serif;color:var(--accent,#8ed5ff);background:#242a38;border:1px solid rgba(221,226,245,.09);border-radius:999px;min-height:44px;padding:10px 18px;cursor:pointer}.ds-secondary:hover{background:#30394a;border-color:rgba(142,213,255,.35)}.ds-secondary:focus-visible{outline:2px solid #8ed5ff;outline-offset:4px}.ds-secondary:active{background:#35465a}"},
+    {"name":"Labeled input","kind":"input","refersTo":"input","description":"Readable inset field; labels never depend on placeholders.","html":"<label class=\"ds-field\">Naam van training<input placeholder=\"Bovenlichaam kracht\"></label>","css":".ds-field{display:flex;flex-direction:column;gap:7px;font:600 12px Inter,sans-serif;color:#dde2f5}.ds-field input{font:400 14px Inter,sans-serif;background:#0e1421;color:#edf2ff;border:1px solid rgba(221,226,245,.14);border-radius:8px;min-height:44px;padding:0 11px;caret-color:#8ed5ff}.ds-field input::placeholder{color:#a6b2c2}.ds-field input:hover{border-color:#486078}.ds-field input:focus-visible{outline:2px solid #8ed5ff;outline-offset:1px}"},
+    {"name":"Selected goal chip","kind":"chip","description":"Multiple-select goals and equipment use the reference's compact capsule vocabulary.","html":"<button class=\"ds-chip\" aria-pressed=\"true\">Kracht</button>","css":".ds-chip{font:500 11px 'Space Grotesk',sans-serif;background:#8ed5ff;color:#00354a;border:1px solid #b3e4ff;border-radius:999px;min-height:32px;padding:6px 12px;cursor:pointer}.ds-chip:hover{background:#b4e4ff}.ds-chip:focus-visible{outline:2px solid #8ed5ff;outline-offset:4px}.ds-chip:active{background:#78c7f5}"},
+    {"name":"Glass workout panel","kind":"card","description":"Tonal dark glass, pale edge and offset structural shadow.","html":"<article class=\"ds-card\"><h3>Bovenlichaam kracht</h3><p>Persoonlijk schema · 4 oefeningen</p></article>","css":".ds-card{background:linear-gradient(115deg,rgba(26,31,45,.95),rgba(22,27,41,.96));border:1px solid rgba(221,226,245,.09);box-shadow:0 8px 28px rgba(0,0,0,.25);border-radius:16px;padding:16px;color:#dde2f5}.ds-card h3{font:600 16px 'Space Grotesk',sans-serif;margin:0 0 4px}.ds-card p{font:400 12px/1.5 Inter,sans-serif;color:#bdc8d1;margin:0}"},
+    {"name":"Four-tab capsule","kind":"nav","description":"Exact order Vandaag / Trainingen / Oefeningen / Voortgang; absent on stack screens.","html":"<nav class=\"ds-nav\"><a href=\"#vandaag\" aria-current=\"page\"><svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M8 2v6M16 2v6\"/></svg>Vandaag</a><a href=\"#trainingen\"><svg viewBox=\"0 0 24 24\"><path d=\"M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1\"/></svg>Trainingen</a><a href=\"#oefeningen\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"4\" r=\"2\"/><path d=\"m4 8 8 3 8-3M12 11v5m0 0-4 6m4-6 4 6\"/></svg>Oefeningen</a><a href=\"#voortgang\"><svg viewBox=\"0 0 24 24\"><path d=\"m3 17 6-6 4 4 8-10M15 5h6v6\"/></svg>Voortgang</a></nav>","css":".ds-nav{display:flex;gap:2px;padding:6px;background:#121925;border:1px solid rgba(221,226,245,.12);border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.5);max-width:488px}.ds-nav a{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:58px;border:1px solid transparent;border-radius:999px;color:#bdc8d1;font:400 10px Inter,sans-serif;text-decoration:none}.ds-nav a[aria-current]{color:#8ed5ff;border-color:rgba(142,213,255,.3);background:rgba(142,213,255,.14)}.ds-nav svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8}.ds-nav a:hover{background:rgba(142,213,255,.08)}.ds-nav a:focus-visible{outline:2px solid #8ed5ff;outline-offset:2px}"},
+    {"name":"Horizontal rest bar","kind":"custom","description":"Session-only countdown with a linear strip, not a circular gauge.","html":"<aside class=\"ds-rest\"><div class=\"ds-strip\"><span></span></div><div><small>Rusttimer resterend</small><strong>01:18</strong></div><button>+30s</button><button aria-label=\"Pauzeren\"><svg viewBox=\"0 0 24 24\"><path d=\"M8 5v14M16 5v14\"/></svg></button></aside>","css":".ds-rest{position:relative;display:flex;align-items:center;gap:8px;border:1px solid rgba(56,189,248,.35);background:#0c1826;border-radius:24px;padding:20px 14px 12px;color:#8ed5ff;box-shadow:0 8px 30px rgba(0,0,0,.4)}.ds-strip{position:absolute;top:7px;left:12px;right:12px;height:4px;background:#23344a;border-radius:999px;overflow:hidden}.ds-strip span{display:block;width:75%;height:100%;background:#3ed6f3}.ds-rest>div:not(.ds-strip){flex:1}.ds-rest small{display:block;font:400 10px Inter,sans-serif;color:#bdc8d1}.ds-rest strong{font:700 22px 'Space Grotesk',sans-serif;font-variant-numeric:tabular-nums}.ds-rest button{background:#242a38;color:#8ed5ff;border:1px solid rgba(221,226,245,.09);border-radius:999px;min-height:40px;min-width:38px;cursor:pointer}.ds-rest svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}.ds-rest button:hover{background:#30394a}.ds-rest button:focus-visible{outline:2px solid #8ed5ff;outline-offset:3px}"}
+  ],
+  "narrative": {
+    "northStar":"Cold precision, clear training.",
+    "overview":"This is an established visual world extracted from the user-supplied Stitch screenshots and their HTML, not a fresh theme selection. The screenshots govern composition and material; paired HTML supplies supporting dimensions, font identities and colors. The exported nested design document is secondary where it contradicts a screenshot.",
+    "keyCharacteristics":["blue-black canvas; restrained frosted panels; icy high-contrast text; cyan operational emphasis; compact mobile single-column screens. This is an Operate interface, not a promotional dashboard."],
+    "rules":[{"name":"The Evidence Rule","body":"Reference statistics and recovery colors are not evidence of the owner's achievements or physiology. Keep their visual slots, but populate them only with real records or honest empty states.","section":"colors"}],
+    "dos":["Do preserve the supplied six screen structures, control placement and visual hierarchy.","Do provide keyboard access, readable contrast, reduced-motion support, safe-area spacing and non-blur fallback.","Do use local fonts and bundled SVG icons consistent with the outlined reference icons.","Do keep missing media and network failure separate from workout logging."],
+    "donts":["Don't copy broken avatars, clipped titles, overlapping inputs, disabled browser zoom or placeholder charts as intentional design.","Don't add GPT, accounts, cloud sync, estimated recovery guarantees or an unrelated desktop redesign.","Don't package private reference screenshots/exports into the public app build."]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "workout-tracker", "version": "1.0.0", "private": true, "type": "module",
+  "scripts": {"dev":"vite", "build":"tsc -b && vite build && node scripts/build-sw.mjs", "preview":"vite preview", "catalog":"node scripts/prepare-catalog.mjs", "test":"node scripts/test-domain.mjs"},
+  "dependencies": {"@fontsource/inter":"^5.2.8", "@fontsource/space-grotesk":"^5.2.10", "idb":"^8.0.3", "lucide-react":"^0.468.0", "react":"^19.2.0", "react-dom":"^19.2.0", "zod":"^4.6.7"},
+  "devDependencies": {"@types/react":"^19.2.0", "@types/react-dom":"^19.2.0", "@vitejs/plugin-react":"^4.7.0", "typescript":"~5.9.3", "vite":"^6.4.1"}
+}
