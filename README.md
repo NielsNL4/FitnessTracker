@@ -14,9 +14,15 @@ npm run preview -- --host 127.0.0.1 --port 4177 --strictPort --base /fitness/
 
 Open `http://127.0.0.1:4177/fitness/` for the production/non-root preview. Port 4177 must be free, or choose another port. The test runner uses the esbuild already installed with Vite and Node's built-in test runner (this environment's Node binary lacks native TypeScript stripping).
 
-## Static hosting (not published)
+## Static hosting
 
-The default Vite base is **`./`**. Copy **only the contents of `dist/`** to the hosting site's `/fitness/` directory (or a GitHub Pages project site's root). No root-absolute asset paths, server rewrite, router backend or environment secrets are required. Navigation uses hashes, e.g. `/fitness/#trainingen`. Keep the trailing slash on the app directory. The generated service worker is `/fitness/sw.js`, scoped to `/fitness/`. Serve over HTTPS, or localhost for development. Do not copy the repository root, Stitch exports, `.impeccable/`, backups or screenshots into the published directory. No deployment or publication has been performed.
+The default Vite base is **`./`**. Copy **only the contents of `dist/`** to the hosting site's `/fitness/` directory (or a GitHub Pages project site's root). No root-absolute asset paths, server rewrite, router backend or environment secrets are required. Navigation uses hashes, e.g. `/fitness/#trainingen`. Keep the trailing slash on the app directory. The generated service worker is `/fitness/sw.js`, scoped to `/fitness/`. Serve over HTTPS, or localhost for development. Do not copy the repository root, Stitch exports, `.impeccable/`, backups or screenshots into the published directory.
+
+### GitHub Pages
+
+Set the repository's **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. `.github/workflows/deploy.yml` automatically deploys pushes to `main` and can also be started manually from the Actions tab. It uses Node.js 22, `npm ci` and `npm run build`, uploading **only `dist/`** with the standard `GITHUB_TOKEN` and OIDC; no custom PAT or deployment secrets are needed.
+
+The expected URL after a successful deployment is **https://nielsnl4.github.io/FitnessTracker/** (case-sensitive path, trailing slash required). Relative assets, hash navigation and service-worker registration use that project directory without a separate base override. Workflow configuration alone does not confirm publication; check the Actions deployment result and live URL.
 
 `npm run build` typechecks, builds, then generates a fingerprinted offline-shell cache containing local JS/CSS/fonts/catalog/notices. Standard installs/builds use the prepared catalog and do **not** contact upstream. Fonts are self-hosted. No runtime Tailwind or font/icon CDN is used.
 
