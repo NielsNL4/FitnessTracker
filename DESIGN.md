@@ -142,6 +142,8 @@ Four tabs in the exact order **Vandaag / Trainingen / Oefeningen / Voortgang**. 
 
 Retain the three-stat strip and Starten/edit/duplicate/delete action order. The workout editor stays inline, with goals and equipment chips, ordered exercises and a full-width save action. Provide accessible up/down controls in addition to any drag affordance.
 
+Editor exercise cards place a centered, contained square demonstration (maximum 280 CSS px) above registration and planning fields, without a gradient overlay or playback buttons. Nearby cards auto-play, including when reopening saved workouts; offscreen cards and reduced-motion mode use posters. The original GIFs are native 180×180; a larger display does not add source detail. Library and Session retain manual playback. Planned strength weight is optional and retains its explicitly stored kg/lb unit, independent of actual session units.
+
 ### Exercise details
 
 Filters precede the list; selecting a result opens the large inline detail panel. Use approved dataset media rather than reference stock photographs. Preserve media dimensions on failure. GIF playback is deliberate, not autoplay across the library. Numbered steps and alternative chips use the same cyan vocabulary.

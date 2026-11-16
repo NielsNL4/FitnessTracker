@@ -31,7 +31,7 @@ Runtime library and font licenses are copied from the installed packages to `dis
 ## What works
 
 - Personal template create/edit/duplicate/delete, goals, equipment, accessible ordering and configurable strength/time/distance/completion slots. Three optional, labeled example templates do not create history.
-- All 1,324 source exercises, muscle/equipment filters, English instructions, inline details and alternatives. GIFs start deliberately; failure keeps instructions/logging available.
+- All 1,324 source exercises, muscle/equipment filters, English instructions, inline details and alternatives. Nearby editor GIFs auto-play unless motion is reduced; Library and Session keep manual playback. Failure keeps editing/instructions/logging available.
 - One durable active session. Blank measurements remain blank. Previous values require compatible exercise/mode/unit and are copied without marking a set complete. Replacement retains completed results on the original exercise snapshot. Finishing retains the same session ID and cannot duplicate history.
 - Deadline-based rest timers (pause/resume/+30/skip/configure), local-date scheduling and rest days, factual last-trained muscle rows, actual history and compatible-metric trends with a readable values table.
 - JSON export/import includes templates, preferences, scheduling, history and the active session/timer. Import validates before showing an explicit **VERVANGEN** confirmation. No merge or automatic reset.
@@ -63,3 +63,6 @@ The preparation script downloads the source JSON and notices, not the media repo
 ## Evidence
 
 Builder's scoped domain tests live in `tests/domain.test.ts`. Private, ignored browser scripts/results and the six-screen mobile/desktop captures are in `.impeccable/review/`. Synthetic records are explicitly `TEST · …`, created only in isolated test browser contexts, never startup fixtures or production defaults. See `.impeccable/implementation.md` for exact results and limitations. Independent review is owned by the coordinator, not a nested builder reviewer.
+# Planned weight compatibility
+
+Optional weight targets in schema-v1 templates and session plans retain their own kg/lb unit; they never prefill logged results. Older backups remain valid without invented targets. Backups containing these new fields require this app version or later (older strict readers reject them).

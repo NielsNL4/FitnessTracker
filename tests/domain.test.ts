@@ -6,6 +6,53 @@ const catalog=JSON.parse(readFileSync('public/catalog.json','utf8')).exercises a
 const ids=new Set(catalog.map(e=>e.id)),first=catalog.find(e=>e.id==='0025')!,other=catalog.find(e=>e.id==='0027')!;
 const template:Template={id:'test-template',name:'TEST · persoonlijk',goals:['Kracht'],equipment:['barbell'],slots:[newSlot(first.id)]};
 const NOW=1_790_000_000_000;
+test('optional planned weight validates strict finite targets, preserves legacy absence and retains zero/decimals',()=>{
+ const state=initialState();state.templates=[structuredClone(template)];state.active=startSession(state.templates[0],catalog,'kg',NOW);
+ const legacy=parseBackup(exportBackup(state),ids);
+ assert.equal(Object.hasOwn(legacy.templates[0].slots[0],'weight'),false);
+ assert.equal(Object.hasOwn(legacy.active!.entries[0].plan!,'weight'),false);
+ for(const weight of [{value:0,unit:'kg'},{value:50.25,unit:'lb'},{value:3000,unit:'kg'}]){
+  const input=structuredClone(state);
+  Object.assign(input.templates[0].slots[0],{weight});Object.assign(input.active!.entries[0].plan!,{weight});
+  const restored=parseBackup(exportBackup(input),ids);
+  assert.deepEqual(restored.templates[0].slots[0].weight,weight);
+  assert.deepEqual(restored.active!.entries[0].plan!.weight,weight);
+ }
+ for(const weight of [null,'',0,{value:null,unit:'kg'},{value:'50',unit:'kg'},{value:-1,unit:'kg'},{value:3001,unit:'kg'},{value:Infinity,unit:'kg'},{value:NaN,unit:'kg'},{value:50,unit:'stone'},{value:50},{value:50,unit:'kg',extra:true}]){
+  for(const location of ['template','plan']){
+   const input=structuredClone(state);
+   Object.assign(location==='template'?input.templates[0].slots[0]:input.active!.entries[0].plan!,{weight});
+   assert.throws(()=>validateState(input,ids),`${location}: ${JSON.stringify(weight)}`);
+  }
+ }
+});
+test('planned weight is a separate unit-bearing snapshot, never a result, and replacement clears only the new target',()=>{
+ const t=structuredClone(template);t.slots[0].weight={value:50.25,unit:'kg'};
+ const state=initialState();state.templates=[t];state.preferences.unit='lb';state.active=startSession(t,catalog,state.preferences.unit,NOW);
+ const entry=state.active.entries[0];
+ assert.notEqual(entry.plan!.weight,t.slots[0].weight);
+ t.slots[0].weight.value=100;
+ assert.deepEqual(entry.plan!.weight,{value:50.25,unit:'kg'});assert.equal(entry.unit,'lb');
+ assert.match(describePlan(entry),/50.25 kg gewichtsdoel/);assert.match(describePlan(entry),/Geen gelogd resultaat/);
+ assert.equal(entry.sets[0].weight,null);assert.equal(validSet(entry.sets[0],entry.mode),false);
+ assert.deepEqual(sessionVolumes(state.active),[]);assert.throws(()=>finishSession(state,state.active!.id,NOW+60000));
+ entry.sets[0]={...blankSet(),weight:25,reps:8,done:true};entry.sets[1].weight=30;
+ const replaced=replaceEntry(state.active,entry.id,other);
+ assert.deepEqual(replaced.entries[0].plan!.weight,{value:50.25,unit:'kg'});
+ assert.equal(replaced.entries[0].retired,true);assert.deepEqual(replaced.entries[0].snapshot,entry.snapshot);
+ assert.deepEqual(replaced.entries[0].sets,[entry.sets[0]]);
+ assert.equal(Object.hasOwn(replaced.entries[1].plan!,'weight'),false);
+ assert.equal(replaced.entries[1].sets[0].weight,null);assert.equal(replaced.entries[1].unit,'lb');
+ assert.deepEqual(sessionVolumes(replaced),[{unit:'lb',value:200}]);
+ assert.deepEqual(parseBackup(exportBackup({...state,active:replaced}),ids).active,replaced);
+ delete t.slots[0].weight;
+ assert.equal(Object.hasOwn(parseBackup(exportBackup(state),ids).templates[0].slots[0],'weight'),false);
+ for(const mode of ['timed','distance','completion'] as const){
+  t.slots[0].mode=mode;t.slots[0].weight={value:80,unit:'kg'};
+  const e=startSession(t,catalog,'lb',NOW).entries[0];
+  assert.equal(Object.hasOwn(e.plan!,'weight'),false);assert.doesNotMatch(describePlan(e),/gewichtsdoel/i);
+ }
+});
 test('prescriptions are immutable separate snapshots, replacements have no borrowed numeric target, and legacy schema-v1 backups still roundtrip',()=>{
  const t=structuredClone(template);
  t.slots=(['strength','timed','distance','completion'] as const).map(mode=>({...newSlot(first.id),mode,sets:2,reps:12,seconds:60,meters:400}));

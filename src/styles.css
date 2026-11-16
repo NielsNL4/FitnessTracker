@@ -21,3 +21,4 @@ dialog{max-width:calc(100% - 32px);width:460px;max-height:calc(100dvh - 48px);bo
 .picker-group{display:flex;flex-direction:column;gap:8px;min-width:0}
 .picker-group>h3{font-size:14px;font-weight:600}.picker-group>h3>span{font-weight:400}
 .picker-list .exercise-row{padding:8px}.picker-list .exercise-row strong,.picker-list .exercise-row small{overflow-wrap:anywhere}
+.editor-slot{scroll-margin-top:86px}.editor-slot>.section-head{flex-wrap:wrap;gap:8px}.editor-slot>.section-head>strong{flex:1 1 170px;min-width:0;overflow-wrap:anywhere}.editor-slot .mini-actions{flex-shrink:0;flex-wrap:wrap}.editor-slot>.editor-media{width:min(100%,280px);aspect-ratio:1;margin:0 auto 12px}.editor-media:after{display:none}

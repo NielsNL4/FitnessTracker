@@ -8,14 +8,34 @@ export function Modal({title,children,onClose}:{title:string;children:ReactNode;
 export function Empty({children}:{children:ReactNode}) {return <p className="empty">{children}</p>;}
 export function StatStrip({items}:{items:[string,ReactNode][]}) {return <div className="stats">{items.map(([label,value])=><div key={label}><span className="micro">{label}</span><strong>{value}</strong></div>)}</div>;}
 export function Field({label,children}:{label:string;children:ReactNode}) {return <label className="field"><span>{label}</span>{children}</label>;}
-export function Media({exercise,compact=false}:{exercise:Exercise;compact?:boolean}) {
- const {catalog}=useApp();const [play,setPlay]=useState(false),[failed,setFailed]=useState(false),[posterFailed,setPosterFailed]=useState(false);
- useEffect(()=>{setPlay(false);setFailed(false);setPosterFailed(false);},[exercise.id]);
+export function Media({exercise,compact=false,editor=false,playing,onPlayingChange,failureMessage='Demonstratie niet beschikbaar. Instructies blijven bruikbaar.'}:{exercise:Exercise;compact?:boolean;editor?:boolean;playing?:boolean;onPlayingChange?:(playing:boolean)=>void;failureMessage?:string}) {
+ const {catalog,state}=useApp();const [localPlay,setLocalPlay]=useState(false),[failed,setFailed]=useState(false),[posterFailed,setPosterFailed]=useState(false);
+ const ref=useRef<HTMLDivElement>(null);
+ const [nearby,setNearby]=useState(false),[systemReduced,setSystemReduced]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+ const reduced=state.preferences.motion==='on'||(state.preferences.motion==='system'&&systemReduced);
+ const play=editor?nearby&&!reduced:(playing??localPlay);
+ useEffect(()=>{
+  if(!editor)return;
+  const query=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const update=()=>setSystemReduced(query.matches);
+  update();query.addEventListener('change',update);
+  return ()=>query.removeEventListener('change',update);
+ },[editor]);
+ useEffect(()=>{
+  if(!editor||!ref.current)return;
+  if(!('IntersectionObserver' in window)){setNearby(true);return;}
+  const observer=new IntersectionObserver(([entry])=>setNearby(entry.isIntersecting),{rootMargin:'80px'});
+  observer.observe(ref.current);
+  return ()=>observer.disconnect();
+ },[editor]);
+ const setPlay=(next:boolean)=>{if(onPlayingChange)onPlayingChange(next);else setLocalPlay(next);};
+ useEffect(()=>{setLocalPlay(false);setFailed(false);setPosterFailed(false);},[exercise.id]);
+ useEffect(()=>{if(play)setFailed(false);},[play]);
  const root=`https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/${catalog.revision}/`;
  const safe=(p:string,kind:string)=>new RegExp(`^${kind}/[A-Za-z0-9_-]+\\.${kind==='videos'?'gif':'jpg'}$`).test(p);
- return <div className={`media ${compact?'compact':''}`}>
-  {play&&!failed&&safe(exercise.gif,'videos')?<img crossOrigin="anonymous" src={root+exercise.gif} alt={`Demonstratie: ${exercise.name}`} onError={()=>setFailed(true)}/>:!posterFailed&&safe(exercise.poster,'images')?<img crossOrigin="anonymous" loading="lazy" src={root+exercise.poster} alt="" onError={()=>setPosterFailed(true)}/>:<Dumbbell className="media-placeholder" size={40}/>}
-  {!compact&&<><span className="media-source">exercises-dataset · EN</span><button className="media-play" onClick={()=>{if(play){setPlay(false);}else{setFailed(false);setPlay(true);}}}><Play size={18}/>{play?'Stop demonstratie':'Start demonstratie'}</button>{failed&&<p className="media-error" role="status">Demonstratie niet beschikbaar. Instructies blijven bruikbaar.</p>}{posterFailed&&!play&&<span className="media-note">Demonstratie op aanvraag · internet nodig</span>}</>}
+ return <div ref={ref} className={`media ${compact?'compact':''} ${editor?'editor-media':''}`}>
+  {play&&!failed&&safe(exercise.gif,'videos')?<img crossOrigin="anonymous" loading={editor?'lazy':undefined} src={root+exercise.gif} alt={`Demonstratie: ${exercise.name}`} onError={()=>setFailed(true)}/>:!posterFailed&&safe(exercise.poster,'images')?<img crossOrigin="anonymous" loading="lazy" src={root+exercise.poster} alt="" onError={()=>setPosterFailed(true)}/>:<Dumbbell className="media-placeholder" size={40}/>}
+  {!compact&&<><span className="media-source">exercises-dataset · EN</span>{!editor&&<button className="media-play" onClick={()=>{if(play&&!failed){setPlay(false);}else{setFailed(false);setPlay(true);}}}><Play size={18}/>{failed?'Opnieuw proberen':play?'Stop demonstratie':'Start demonstratie'}</button>}{failed&&<p className="media-error" role="status">{failureMessage}</p>}{posterFailed&&!play&&<span className="media-note">{editor?'Afbeelding niet beschikbaar · internet nodig':'Demonstratie op aanvraag · internet nodig'}</span>}</>}
  </div>;
 }
 export function Instructions({exercise}:{exercise:{instructions:string[]}}) {return <><div className="section-head"><h3>Instructies</h3><span className="muted small">Engels · brondata</span></div><ol className="instructions">{exercise.instructions.map((s,i)=><li key={i}>{s}</li>)}</ol></>;}

@@ -10,14 +10,15 @@ export const modeNames = {strength:'Kracht',timed:'Tijd',distance:'Afstand',comp
 export const goals = ['Spiermassa','Kracht','Conditie','Fit blijven','Mobiliteit'] as const;
 const mode = z.enum(modes);
 const unit = z.enum(['kg','lb']);
+const plannedWeight = z.object({value:z.number().finite().min(0).max(3000),unit}).strict();
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine(s=>{const d=new Date(s+'T12:00:00');return !isNaN(+d)&&localDate(d)===s;},'Ongeldige datum');
 const timestamp = z.number().int().min(0).max(8_640_000_000_000_000);
 const setSchema = z.object({id,weight:value,reps:value,seconds:value,meters:value,done:z.boolean()}).strict();
-const slotSchema = z.object({id,exerciseId:id,mode,sets:z.number().int().min(1).max(30),reps:value,seconds:value,meters:value,rest:z.number().int().min(0).max(3600)}).strict();
+const slotSchema = z.object({id,exerciseId:id,mode,sets:z.number().int().min(1).max(30),reps:value,seconds:value,meters:value,weight:plannedWeight.optional(),rest:z.number().int().min(0).max(3600)}).strict();
 const templateSchema = z.object({id,name:text,goals:z.array(z.enum(['Spiermassa','Kracht','Conditie','Fit blijven','Mobiliteit'])).max(5),equipment:z.array(text).max(50),slots:z.array(slotSchema).min(1).max(100)}).strict();
 const snapshotSchema = z.object({exerciseId:id,name:text,muscles:z.array(text).max(30),equipment:text,instructions:z.array(z.string().max(3000)).max(50)}).strict();
 // Optional so schema-v1 sessions/backups remain valid without inventing a lost prescription.
-const planSchema = z.object({sets:z.number().int().min(1).max(100),reps:z.number().int().min(0).max(10000).nullable(),seconds:z.number().finite().min(0).max(86400).nullable(),meters:value}).strict();
+const planSchema = z.object({sets:z.number().int().min(1).max(100),reps:z.number().int().min(0).max(10000).nullable(),seconds:z.number().finite().min(0).max(86400).nullable(),meters:value,weight:plannedWeight.optional()}).strict();
 const entrySchema = z.object({id,slotId:id,snapshot:snapshotSchema,plan:planSchema.optional(),mode,unit,rest:z.number().int().min(0).max(3600),retired:z.boolean(),sets:z.array(setSchema).max(100)}).strict();
 const timerSchema = z.object({deadline:timestamp.nullable(),remaining:z.number().finite().min(0).max(86_400_000),duration:z.number().int().min(0).max(86_400_000),running:z.boolean()}).strict().refine(t=>t.running ? t.deadline!==null : t.deadline===null,'Ongeldige timer');
 const sessionSchema = z.object({id,templateId:id,name:text,startedAt:timestamp,finishedAt:timestamp.nullable(),date,entries:z.array(entrySchema).min(1).max(200),current:z.number().int().min(0).max(199),timer:timerSchema}).strict();
@@ -37,7 +38,7 @@ export function blankSet():SetLog {return {id:uid(),weight:null,reps:null,second
 export function newSlot(exerciseId:string,rest=90):Slot {return {id:uid(),exerciseId,mode:'strength',sets:3,reps:8,seconds:null,meters:null,rest};}
 export function validSet(s:SetLog,m:Entry['mode']) {return m==='completion'||m==='strength' ? m==='completion'||(s.weight!==null&&s.weight<=3000&&s.reps!==null&&Number.isInteger(s.reps)&&s.reps>0&&s.reps<=10000) : m==='timed' ? s.seconds!==null&&s.seconds>0&&s.seconds<=86400 : s.meters!==null&&s.meters>0&&s.meters<=1_000_000&&(s.seconds===null||s.seconds>0&&s.seconds<=86400);}
 export function snapshot(e:Exercise):Entry['snapshot'] {return {exerciseId:e.id,name:e.name,muscles:[...e.muscles],equipment:e.equipment,instructions:[...e.instructions]};}
-export function startSession(t:Template,catalog:Exercise[],unit:State['preferences']['unit'],now=Date.now()):Session {return {id:uid(),templateId:t.id,name:t.name,startedAt:now,finishedAt:null,date:localDate(new Date(now)),current:0,timer:resetTimer(),entries:t.slots.map(s=>{const e=catalog.find(e=>e.id===s.exerciseId);if(!e)throw Error('Oefening ontbreekt in de bibliotheek.');return {id:uid(),slotId:s.id,snapshot:snapshot(e),plan:{sets:s.sets,reps:s.reps,seconds:s.seconds,meters:s.meters},mode:s.mode,unit,rest:s.rest,retired:false,sets:Array.from({length:s.sets},blankSet)};})};}
+export function startSession(t:Template,catalog:Exercise[],unit:State['preferences']['unit'],now=Date.now()):Session {return {id:uid(),templateId:t.id,name:t.name,startedAt:now,finishedAt:null,date:localDate(new Date(now)),current:0,timer:resetTimer(),entries:t.slots.map(s=>{const e=catalog.find(e=>e.id===s.exerciseId);if(!e)throw Error('Oefening ontbreekt in de bibliotheek.');return {id:uid(),slotId:s.id,snapshot:snapshot(e),plan:{sets:s.sets,reps:s.reps,seconds:s.seconds,meters:s.meters,...(s.mode==='strength'&&s.weight?{weight:{...s.weight}}:{})},mode:s.mode,unit,rest:s.rest,retired:false,sets:Array.from({length:s.sets},blankSet)};})};}
 export function replaceEntry(session:Session,entryId:string,e:Exercise):Session {
  const next=structuredClone(session),index=next.entries.findIndex(e=>e.id===entryId);if(index<0)throw Error('Oefening niet gevonden.');
  const original=next.entries[index]; if(original.retired)throw Error('Deze oefening is al vervangen.');
@@ -86,7 +87,8 @@ export function describeSet(s:SetLog,m:Entry['mode'],unit='kg') {return m==='str
 export function describePlan(entry:Entry) {
  const p=entry.plan;if(!p)return 'Doel niet vastgelegd in deze oudere sessie.';
  const target=entry.mode==='strength'?(p.reps===null?'Herhalingsdoel niet ingesteld':`${p.reps} herhalingen per set`):entry.mode==='timed'?(p.seconds===null?'Tijddoel niet ingesteld':`${p.seconds} s per set`):entry.mode==='distance'?(p.meters===null?'Afstandsdoel niet ingesteld':`${p.meters} m per set${p.seconds===null?'':` · ${p.seconds} s`}`):'Alleen voltooien, zonder meting';
- return `Gepland: ${p.sets} ${p.sets===1?'set':'sets'} · ${target}. Geen gelogd resultaat.`;
+ const weightTarget=entry.mode==='strength'?` · ${p.weight?`${p.weight.value} ${p.weight.unit} gewichtsdoel`:'Gewichtsdoel niet vastgelegd'}`:'';
+ return `Gepland: ${p.sets} ${p.sets===1?'set':'sets'} · ${target}${weightTarget}. Geen gelogd resultaat.`;
 }
 export function sessionVolumes(session:Session):{unit:Entry['unit'];value:number}[] {
  const totals=new Map<Entry['unit'],number>();
